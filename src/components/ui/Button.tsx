@@ -1,33 +1,20 @@
-import { ButtonHTMLAttributes } from "react";
+import React from "react";
 
-type ButtonVariant =
-  | "primary"
-  | "secondary"
-  | "danger"
-  | "outline";
-
-interface ButtonProps
-  extends ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: ButtonVariant;
-  loading?: boolean;
-}
+type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
+  variant?: "primary" | "outline";
+};
 
 export default function Button({
   children,
   variant = "primary",
-  loading = false,
   className = "",
   ...props
 }: ButtonProps) {
+  const baseStyle =
+    "w-fit rounded-lg px-5 py-3 font-semibold transition disabled:cursor-not-allowed disabled:opacity-50";
+
   const variants = {
-    primary:
-      "bg-blue-600 text-white hover:bg-blue-700",
-
-    secondary:
-      "bg-slate-200 text-slate-800 hover:bg-slate-300",
-
-    danger:
-      "bg-red-600 text-white hover:bg-red-700",
+    primary: "bg-blue-600 text-white hover:bg-blue-700",
 
     outline:
       "border border-blue-600 text-blue-600 hover:bg-blue-50",
@@ -35,21 +22,10 @@ export default function Button({
 
   return (
     <button
-      className={`
-        rounded-xl
-        px-5
-        py-3
-        font-medium
-        transition
-        disabled:cursor-not-allowed
-        disabled:opacity-50
-        ${variants[variant]}
-        ${className}
-      `}
-      disabled={loading}
+      className={`${baseStyle} ${variants[variant]} ${className}`}
       {...props}
     >
-      {loading ? "Loading..." : children}
+      {children}
     </button>
   );
 }
