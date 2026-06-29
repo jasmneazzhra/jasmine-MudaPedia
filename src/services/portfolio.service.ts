@@ -12,26 +12,20 @@ type CreatePortfolioData = {
   featured?: boolean;
 };
 
-export async function createPortfolio(
-  data: CreatePortfolioData
-) {
-  const slug = data.title
-    .toLowerCase()
-    .trim()
-    .replace(/\s+/g, "-");
+export async function createPortfolio(data: CreatePortfolioData) {
+  const slug =
+    data.title.toLowerCase().trim().replace(/\s+/g, "-") +
+    "-" +
+    Date.now();
 
-  const existingPortfolio = await Portfolio.findOne({
-    slug,
-  });
-
-  if (existingPortfolio) {
-    throw new Error("Portfolio title already exists");
-  }
-
-  const portfolio = await Portfolio.create({
-    ...data,
-    slug,
-  });
-
+  const portfolio = await Portfolio.create({ ...data, slug });
   return portfolio;
+}
+
+export async function getPortfoliosByUser(userId: string) {
+  return Portfolio.find({ userId }).sort({ createdAt: -1 });
+}
+
+export async function getPortfolios() {
+  return Portfolio.find().sort({ createdAt: -1 });
 }

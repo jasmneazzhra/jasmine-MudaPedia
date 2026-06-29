@@ -1,13 +1,14 @@
-import { TextareaHTMLAttributes } from "react";
+import { SelectHTMLAttributes } from "react";
 
-type Props = TextareaHTMLAttributes<HTMLTextAreaElement>;
+type Props = SelectHTMLAttributes<HTMLSelectElement>;
 
-export default function TextArea({
+export default function Select({
   className = "",
+  children,
   ...props
 }: Props) {
   return (
-    <textarea
+    <select
       className={`
         w-full rounded-xl border border-slate-300
         px-4 py-3
@@ -20,6 +21,8 @@ export default function TextArea({
         ${className}
       `}
       {...props}
-    />
+    >
+      {children}
+    </select>
   );
 }

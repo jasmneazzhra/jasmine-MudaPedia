@@ -20,20 +20,21 @@ export const portfolioSchema = z.object({
 
   githubUrl: z
     .string()
-    .url("Invalid GitHub URL")
     .optional()
-    .or(z.literal("")),
+    .transform((val) => val ?? "")
+    .refine((val) => val === "" || /^https?:\/\/.+/.test(val), {
+      message: "Invalid GitHub URL (must start with http:// or https://)",
+    }),
 
   liveUrl: z
     .string()
-    .url("Invalid Live URL")
     .optional()
-    .or(z.literal("")),
+    .transform((val) => val ?? "")
+    .refine((val) => val === "" || /^https?:\/\/.+/.test(val), {
+      message: "Invalid Live URL (must start with http:// or https://)",
+    }),
 
-  image: z
-    .string()
-    .optional()
-    .or(z.literal("")),
+  image: z.string().optional().default(""),
 
-  featured: z.boolean().optional(),
+  featured: z.boolean().optional().default(false),
 });

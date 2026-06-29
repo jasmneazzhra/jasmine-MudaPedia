@@ -1,71 +1,50 @@
-import Card from "@/components/ui/Card";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { connectDB } from "@/lib/mongodb";
+import Portfolio from "@/models/Portfolio";
+import DashboardHeader from "@/components/layout/DashboardHeader";
+import PortfolioGrid from "@/components/portfolio/PortfolioGrid";
+import EmptyState from "@/components/shared/EmptyState";
 
-export default function DashboardPage() {
+export default async function DashboardPage() {
+  const session = await getServerSession(authOptions);
+  await connectDB();
 
-    return (
+  const portfolios = await Portfolio.find({ userId: session!.user.id })
+    .sort({ createdAt: -1 })
+    .lean();
 
-        <>
+  const serialized = JSON.parse(JSON.stringify(portfolios));
 
-            <h1 className="mb-8 text-3xl font-bold">
+  return (
+    <section className="space-y-8">
+      {/* Stats Bar */}
+      <div className="grid grid-cols-3 gap-4">
+        <div className="rounded-2xl bg-white border p-5 text-center shadow-sm">
+          <p className="text-3xl font-bold text-blue-600">{serialized.length}</p>
+          <p className="text-slate-500 text-sm mt-1">Total Projects</p>
+        </div>
+        <div className="rounded-2xl bg-white border p-5 text-center shadow-sm">
+          <p className="text-3xl font-bold text-green-600">
+            {serialized.filter((p: any) => p.liveUrl).length}
+          </p>
+          <p className="text-slate-500 text-sm mt-1">Published</p>
+        </div>
+        <div className="rounded-2xl bg-white border p-5 text-center shadow-sm">
+          <p className="text-3xl font-bold text-orange-500">
+            {serialized.filter((p: any) => p.featured).length}
+          </p>
+          <p className="text-slate-500 text-sm mt-1">Featured</p>
+        </div>
+      </div>
 
-                Welcome Back 👋
+      <DashboardHeader />
 
-            </h1>
-
-            <div className="grid grid-cols-3 gap-6">
-
-                <Card>
-
-                    <h2 className="text-gray-500">
-
-                        Total Portfolio
-
-                    </h2>
-
-                    <p className="mt-2 text-4xl font-bold">
-
-                        12
-
-                    </p>
-
-                </Card>
-
-                <Card>
-
-                    <h2 className="text-gray-500">
-
-                        Total Views
-
-                    </h2>
-
-                    <p className="mt-2 text-4xl font-bold">
-
-                        250
-
-                    </p>
-
-                </Card>
-
-                <Card>
-
-                    <h2 className="text-gray-500">
-
-                        Last Updated
-
-                    </h2>
-
-                    <p className="mt-2 text-xl">
-
-                        Today
-
-                    </p>
-
-                </Card>
-
-            </div>
-
-        </>
-
-    );
-
+      {serialized.length === 0 ? (
+        <EmptyState />
+      ) : (
+        <PortfolioGrid portfolios={serialized} />
+      )}
+    </section>
+  );
 }

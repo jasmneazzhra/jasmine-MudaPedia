@@ -7,6 +7,7 @@ type InputProps = {
   value: string;
   placeholder?: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
 };
 
 export default function Input({
@@ -16,13 +17,11 @@ export default function Input({
   value,
   placeholder,
   onChange,
+  onKeyDown,
 }: InputProps) {
   return (
     <div className="space-y-2">
-      <label
-        htmlFor={name}
-        className="block text-sm font-semibold text-slate-700"
-      >
+      <label htmlFor={name} className="block text-sm font-semibold text-slate-700">
         {label}
       </label>
 
@@ -33,6 +32,7 @@ export default function Input({
         value={value}
         placeholder={placeholder}
         onChange={onChange}
+        onKeyDown={onKeyDown}
         className="w-full rounded-lg border border-slate-300 bg-white px-4 py-3 outline-none transition focus:border-blue-600 focus:ring-2 focus:ring-blue-200"
       />
     </div>

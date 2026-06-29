@@ -6,8 +6,37 @@ if (!MONGODB_URI) {
   throw new Error("MONGODB_URI is not defined.");
 }
 
-export async function connectDB() {
-  await mongoose.connect(MONGODB_URI!);
+type MongooseCache = {
+  conn: typeof mongoose | null;
+  promise: Promise<typeof mongoose> | null;
+};
 
-  console.log("✅ MongoDB Connected");
+declare global {
+  // eslint-disable-next-line no-var
+  var _mongooseCache: MongooseCache | undefined;
+}
+
+const cached: MongooseCache = global._mongooseCache ?? { conn: null, promise: null };
+global._mongooseCache = cached;
+
+export async function connectDB() {
+  if (cached.conn) {
+    return cached.conn;
+  }
+
+  if (!cached.promise) {
+    cached.promise = mongoose.connect(MONGODB_URI!).then((m) => {
+      console.log("✅ MongoDB Connected");
+      return m;
+    });
+  }
+
+  try {
+    cached.conn = await cached.promise;
+  } catch (err) {
+    cached.promise = null;
+    throw err;
+  }
+
+  return cached.conn;
 }

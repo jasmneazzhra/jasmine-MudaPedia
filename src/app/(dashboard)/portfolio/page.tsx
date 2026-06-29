@@ -1,13 +1,29 @@
-export default function PortfolioPage() {
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { connectDB } from "@/lib/mongodb";
+import Portfolio from "@/models/Portfolio";
+import DashboardHeader from "@/components/layout/DashboardHeader";
+import PortfolioGrid from "@/components/portfolio/PortfolioGrid";
+import EmptyState from "@/components/shared/EmptyState";
 
-    return (
+export default async function PortfolioPage() {
+  const session = await getServerSession(authOptions);
+  await connectDB();
 
-        <h1 className="text-3xl font-bold">
+  const portfolios = await Portfolio.find({ userId: session!.user.id })
+    .sort({ createdAt: -1 })
+    .lean();
 
-            Portfolio
+  const serialized = JSON.parse(JSON.stringify(portfolios));
 
-        </h1>
-
-    );
-
+  return (
+    <section className="space-y-8">
+      <DashboardHeader />
+      {serialized.length === 0 ? (
+        <EmptyState />
+      ) : (
+        <PortfolioGrid portfolios={serialized} />
+      )}
+    </section>
+  );
 }
